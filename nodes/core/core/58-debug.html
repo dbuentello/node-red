@@ -123,6 +123,8 @@
     
             this.handleDebugMessage = function(t,o) {
                 var msg = document.createElement("div");
+                var msgTag = RED.nodes.node(o.id).id;
+                var debugNode = document.getElementById(msgTag);
                 msg.onmouseover = function() {
                     msg.style.borderRightColor = "#999";
                     var n = RED.nodes.node(o.id);
@@ -148,10 +150,35 @@
                     }
     
                 };
+                debugNode.onmouseover = function () {
+                    var msgs = document.getElementsByClassName('msg-' + msgTag);
+                    for (var i = msgs.length - 1; i >= 0; i--) {
+                        msgs[i].style.borderRightColor = "#dd1616";
+                        msgs[i].style.borderLeftColor = "#dd1616";
+                        for (var b = msgs[i].childNodes.length - 1; b >= 0; b--) {
+                                if (msgs[i].childNodes[b].className == "debug-message-payload") {
+                                msgs[i].childNodes[b].style.color = "#dd1616";
+                            }
+                        };
+                    };
+                };
+
+                debugNode.onmouseout = function () {
+                    var msgs = document.getElementsByClassName('msg-' + msgTag);
+                    for (var i = msgs.length - 1; i >= 0; i--) {
+                        msgs[i].style.borderRightColor = "";
+                        msgs[i].style.borderLeftColor = "";
+                        for (var b = msgs[i].childNodes.length - 1; b >= 0; b--) {
+                            if (msgs[i].childNodes[b].className == "debug-message-payload") {
+                                msgs[i].childNodes[b].style.color = "";
+                            }
+                        };
+                    };
+                };
                 var name = (o.name?o.name:o.id).toString().replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
                 var topic = (o.topic||"").toString().replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
                 var payload = (o.msg||"").toString().replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
-                msg.className = 'debug-message'+(o.level?(' debug-message-level-'+o.level):'');
+                msg.className = 'debug-message'+(o.level?(' debug-message-level-'+o.level):'' + ' msg-' + msgTag);
                 msg.innerHTML = '<span class="debug-message-date">'+getTimestamp()+'</span>'+
                                 '<span class="debug-message-name">['+name+']</span>'+
                                 (o.topic?'<span class="debug-message-topic">'+topic+'</span>':'')+
